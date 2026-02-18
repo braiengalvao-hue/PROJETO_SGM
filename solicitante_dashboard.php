@@ -1,3 +1,12 @@
+<?php
+session_start();
+if(!isset($_SESSION['user_id']) || $_SESSION['user_perfil'] !== 'solicitante') {
+    header('Location: login.php');
+    exit;
+}   
+?>
+
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -34,14 +43,14 @@
             <div class="d-flex w-100 align-items-center justify-content-around">
                 <h5 class="card-title mb-0">Minha fila de trabalho</h5>
                 <span></span>
-                <button type="button" class="btn btn-success" style="width: 200px;"> + Nova Solicitação</button>
+                <button type="button" class="btn btn-success" style="width: 200px;" onclick="window.location.href='solicitante_abrir_chamado.php'"> + Nova Solicitação</button>
             </div>
 
         </section>
 
         <section class="col-6 w-100">
 
-            <table class="table table-striped border border-dark-subtle shadow p-5 rounded-2" style="overflow: hidden;">
+            <table id="tabelaChamados" class="table table-striped border border-dark-subtle shadow p-5 rounded-2" style="overflow: hidden;">
                 <thead>
                     <tr>
                     <th scope="col">ID</th>
@@ -69,6 +78,72 @@
         
 
     </main>
+
+    <div class="modal fade" id="modalFoto" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body p-0">
+        <img src="" id="imgModal" class="img-fluid rounded" alt="Foto do Chamado">
+      </div>
+    </div>
+  </div>
+</div>
+
+    <script>
+        async function carregarChamados() {
+            try {
+                const response = await fetch('controllers/chamados_solicitante_controller.php');
+                const chamados = await response.json();
+                
+                
+                const lista = document.querySelector('#tabelaChamados tbody');
+                const cores = { 
+                    'aberto': 'bg-secondary', 
+                    'agendado': 'bg-info', 
+                    'em_execucao': 'bg-warning', 
+                    'concluido': 'bg-success', 
+                    'fechado': 'bg-dark' 
+                };
+
+                // Geramos as linhas
+                const rows = await Promise.all(chamados.map(async c => {
+                    const respAnexos = await fetch(`controllers/anexos_controller.php?id_chamado=${c.id_chamado}`);
+                    const anexos = await respAnexos.json();
+                    
+                    const thumbHtml = anexos.length > 0 ?
+                        `<img src="${anexos[0].caminho_arquivo}" style="width:50px; cursor:pointer;" onclick="verFoto('${anexos[0].caminho_arquivo}')">` :
+                        '<i class="bi bi-image text-muted"></i>';
+
+                    return `<tr>    
+                        <td>#${c.id_chamado}</td>
+                        <td>${thumbHtml}</td>
+                        <td>${c.bloco_nome} - ${c.ambiente_nome}</td>
+                        <td>${c.descricao_problema.substring(0,30)}...</td>
+                        <td>${new Date(c.data_abertura).toLocaleDateString('pt-BR')}</td>
+                        <td><span class="badge ${cores[c.status] || 'bg-primary'}">${c.status.toUpperCase()}</span></td>
+                    </tr>`;
+                }));
+
+                // Inserimos no HTML
+                lista.innerHTML = rows.join('');
+                
+            } catch (error) {
+                console.error("Erro ao carregar chamados:", error);
+            }
+        }
+
+        function verFoto(url) {
+            const modalEl = document.getElementById('modalFoto');
+            if(modalEl) {
+                document.getElementById('imgModal').src = url;
+                new bootstrap.Modal(modalEl).show();
+            } else {
+                alert("Modal de foto não encontrado no HTML!");
+            }
+        }
+
+        carregarChamados();
+    </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

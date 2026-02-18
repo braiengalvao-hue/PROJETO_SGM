@@ -61,4 +61,4 @@ if($result && $result->num_rows === 1){
     // Se o e-mail não existir no banco, retorna erro
     echo json_encode(['success' => false, "message" => "Usuário não encontrado."]);
     exit;
-}
+} 
