@@ -1,87 +1,162 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_id']) || $_SESSION['user_perfil'] !== 'gestor') {
+    header("Location: login.php");
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tecnico DashBoard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <title>SGM - Gestão de Chamados</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 </head>
+
 <body class="bg-light">
 
-        <nav class="navbar navbar-expand-lg bg-dark mb-4" data-bs-theme="dark">
-        <div class="container">
-            <a class="navbar-brand" href="gestor_dashboard.php">SGM | Gestão Adiministrativa</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse" id="navbarMain">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0 g-3">
-                    </ul>
-                <div class="d-flex align-items-center flex-wrap gap-2">
-                    <a class="btn text-white me-2">Chamados</a>
-                    <a class="btn text-secondary me-2" href="">Locais</a>
-                    <a class="btn btn-outline-light btn-sm" type="button" href="controllers/logout.php">Sair</a>
-                </div>
-            </div>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+    <div class="container">
+        <a class="navbar-brand" href="gestor_dashboard.php">SGM Admin</a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link active" href="gestor_chamados.php">Chamados</a>
+            <a class="nav-link" href="gestor_locais.php">Locais</a>
+            <a class="nav-link" href="api/logout.php">Sair</a>
         </div>
-    </nav>
+    </div>
+</nav>
 
-    <main class="container">
+<div class="container">
+    <h2 class="mb-4">Todos os Chamados</h2>
 
-        <section class=" col col-6 row g-3 mb-4 w-100">
+    <div class="mb-3 d-flex gap-2">
+        <button class="btn btn-sm btn-outline-secondary" onclick="carregarChamados('')">Todos</button>
+        <button class="btn btn-sm btn-outline-primary" onclick="carregarChamados('aberto')">Abertos</button>
+        <button class="btn btn-sm btn-outline-warning" onclick="carregarChamados('em_execucao')">Em Execução</button>
+        <button class="btn btn-sm btn-outline-success" onclick="carregarChamados('concluido')">Concluídos</button>
+    </div>
 
-            <div class="d-flex w-100 align-items-center justify-content-start">
-                <h5 class="card-title mb-0">Todos os Chamados</h5>
-            </div>
-
-            <div class="d-flex w-100 align-items-center justify-content-start gap-3">
-                
-                <button type="button" class="btn btn-outline-secondary">Todos</button>
-                <button type="button" class="btn btn-outline-primary">Abertos</button>
-                <button type="button" class="btn btn-outline-warning">Em Execução</button>
-                <button type="button" class="btn btn-outline-success">Concluídos</button>
-
-            </div>
-
-        </section>
-
-        <section class="col-6 w-100">
-
-            <table class="table table-striped border border-dark-subtle shadow p-5 rounded-2" style="overflow: hidden;">
-                <thead>
+    <div class="card shadow">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
                     <tr>
-                    <th scope="col">ID</th>
-                    <th scope="col">Foto</th>
-                    <th scope="col">Local</th>
-                    <th scope="col">Descrição</th>
-                    <th scope="col">Prioridade</th>
-                    <th scope="col">Data</th>
-                    <th scope="col">Status</th>
-                    <th scope="col">Ações</th>
+                        <th>ID</th>
+                        <th>Solicitante</th>
+                        <th>Local / Tipo</th>
+                        <th>Prioridade</th>
+                        <th>Técnico</th>
+                        <th>Status</th>
+                        <th>Ações</th>
                     </tr>
                 </thead>
-                <tbody class="table-group-divider">
-                    <tr>
-                    <th scope="row">1</th>
-                    <td>foto</td>
-                    <td>Sala de Informatica</td>
-                    <td>Problema grande com problemas grandes</td>
-                    <td>🟡 Média</td>
-                    <td>03/04/2008</td>
-                    <td><span class="btn btn-secondary"> FECHADO</span></td>
-                    <td><span class="btn btn-primary"><i class="bi bi-eye"></i>  Gerenciar</span></td>
-                    </tr>
+                <tbody id="tabelaGeral">
                 </tbody>
             </table>
+        </div>
+    </div>
+</div>
 
-        </section>
-        
-        
+<!-- Modal Foto -->
+<div class="modal fade" id="modalFoto" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body p-0 text-center bg-dark">
+                <img src="" id="imgModal" class="img-fluid">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
 
-    </main>
+<!-- Bootstrap JS (CARREGAR APENAS UMA VEZ) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function verFoto(url) {
+        document.getElementById('imgModal').src = url;
+        const modal = new bootstrap.Modal(document.getElementById('modalFoto'));
+        modal.show();
+    }
+
+    const coresPrioridade = {
+        'urgente': 'text-danger',
+        'alta': 'text-warning',
+        'media': 'text-primary',
+        'baixa': 'text-secondary'
+    };
+
+    const coresStatus = {
+        'aberto': 'bg-secondary',
+        'em_execucao': 'bg-warning',
+        'concluido': 'bg-success',
+        'fechado': 'bg-dark'
+    };
+
+    async function carregarChamados(status = '') {
+        try {
+            const res = await fetch(`controllers/chamados_gestor_controller.php?status=${status}`);
+            const chamados = await res.json();
+
+            const body = document.getElementById('tabelaGeral');
+
+            if (!Array.isArray(chamados)) {
+                body.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center text-danger">
+                            Erro ao carregar chamados.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            body.innerHTML = chamados.map(c => `
+                <tr>
+                    <td>#${c.id_chamado}</td>
+                    <td>${c.solicitante_nome}</td>
+                    <td>
+                        <small class="text-muted">${c.bloco_nome}</small><br>
+                        <strong>${c.ambiente_nome}</strong>
+                    </td>
+                    <td>
+                        <i class="bi bi-circle-fill ${coresPrioridade[c.prioridade] || 'text-secondary'} me-1"></i>
+                        ${c.prioridade ? c.prioridade.toUpperCase() : ''}
+                    </td>
+                    <td>
+                        ${c.tecnico_nome || '<em class="text-muted">Não atribuído</em>'}
+                    </td>
+                    <td>
+                        <span class="badge ${coresStatus[c.status] || 'bg-secondary'}">
+                            ${c.status ? c.status.replace('_', ' ').toUpperCase() : ''}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="gestor_detalhes.php?id=${c.id_chamado}" class="btn btn-sm btn-primary">
+                            <i class="bi bi-eye"></i> Gerenciar
+                        </a>
+                    </td>
+                </tr>
+            `).join('');
+        } catch (error) {
+            document.getElementById('tabelaGeral').innerHTML = `
+                <tr>
+                    <td colspan="7" class="text-center text-danger">
+                        Ero ao buscar dados do servidor.
+                    </td>
+                </tr>
+            `;
+            console.error(error);
+        }
+    }
+
+    carregarChamados();
+</script>
+
 </body>
 </html>

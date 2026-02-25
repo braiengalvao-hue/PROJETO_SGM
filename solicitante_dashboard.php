@@ -111,7 +111,7 @@ if(!isset($_SESSION['user_id']) || $_SESSION['user_perfil'] !== 'solicitante') {
                     const anexos = await respAnexos.json();
                     
                     const thumbHtml = anexos.length > 0 ?
-                        `<img src="${anexos[0].caminho_arquivo}" style="width:50px; cursor:pointer;" onclick="verFoto('${anexos[0].caminho_arquivo}')">` :
+                        `<img src="assets/uploads/${anexos[0].caminho_arquivo}" style="width:50px; cursor:pointer;" onclick="verFoto('${anexos[0].caminho_arquivo}')">` :
                         '<i class="bi bi-image text-muted"></i>';
 
                     return `<tr>    
@@ -135,7 +135,7 @@ if(!isset($_SESSION['user_id']) || $_SESSION['user_perfil'] !== 'solicitante') {
         function verFoto(url) {
             const modalEl = document.getElementById('modalFoto');
             if(modalEl) {
-                document.getElementById('imgModal').src = url;
+                document.getElementById('imgModal').src ='assets/uploads/'+ url;
                 new bootstrap.Modal(modalEl).show();
             } else {
                 alert("Modal de foto não encontrado no HTML!");
