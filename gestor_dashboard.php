@@ -29,6 +29,8 @@
     
     <main class="container">
         <div class="row g-3 mb-4">
+
+        
             <div class="col-12 col-md-4">
                 <div class="card text-bg-primary h-100">
                     <div class="card-header">Novas solicitações</div>
@@ -57,16 +59,61 @@
             </div>
         </div>
 
-        <div class="row g-2 justify-content-center">
-            <div class="col-12 col-sm-auto">
-                <a class="btn btn-secondary w-100" type="button" href="gestor_chamados.php"><i class="bi bi-list-ul"></i> Gerenciar Todos os Chamados</a>
+        <div class="row g-2 justify-content-center mb-3 w-100">
+            <div class="d-flex align-items-center justify-content-center gap-2 row" style="width: 100%;">
+
+            <a class="btn btn-secondary " type="button" href="gestor_chamados.php" style="width: 30%;"><i class="bi bi-list-ul"></i> Gerenciar Chamados</a>
+
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" style="width: 30%;"><i class="bi bi-eye"></i> Vizualizar </button>
+
+            </div> 
+        </div>
+            
+            
+            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">O que deseja vizualizar?</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                            <div>
+            <div class="row g-2 justify-content-center mb-3">
+            <div class="col-12 col-sm-auto mb-3">
+                <a href="vizualizar_ambientes.php" class="btn btn-outline-secondary"> Ambientes</a>
             </div>
+
             <div class="col-12 col-sm-auto">
-                <a class="btn btn-outline-info w-100"> <i class="bi bi-geo-alt"></i> Configurar Ambientes</a>
+                <a href="vizualizar_blocos.php " class="btn btn-outline-secondary"> Blocos</a>
             </div>
+
+            <div class="col-12 col-sm-auto">
+                <a href="vizualizar_tipos_servicos.php" class="btn btn-outline-secondary"> Tipos de serviços</a>
+            </div>
+
+            <div class="col-12 col-sm-auto">
+                <a href="vizualizar_usuarios.php" class="btn btn-outline-secondary"> Usuários</a>
+            </div>
+
+        </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Fechar</button>
+                </div>
+                </div>
+            </div>
+            </div>
+        </div>
         </div>
     </main>
 
+    <div class="container-fluid text-white py-3">
+
+        </div>
+        
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
