@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once '../models/database.php'; // Ajustado para o mesmo caminho do outro
+require_once '../models/database.php'; 
 header('Content-Type: application/json');
 
 if (!isset($_SESSION['user_id'])) {
